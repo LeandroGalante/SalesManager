@@ -36,17 +36,10 @@ public class Program
 
             builder.Services.AddDbContext<DefaultContext>(options =>
             {
-                if (builder.Environment.IsDevelopment())
-                {
-                    options.UseInMemoryDatabase("DeveloperEvaluation");
-                }
-                else
-                {
-                    options.UseNpgsql(
-                        builder.Configuration.GetConnectionString("DefaultConnection"),
-                        b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-                    );
-                }
+                options.UseNpgsql(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
+                );
             });
 
             builder.Services.AddJwtAuthentication(builder.Configuration);

@@ -4,31 +4,17 @@ using System.Text.Json;
 
 namespace Ambev.DeveloperEvaluation.Common.MessageBroker;
 
-/// <summary>
-/// Fake implementation of Azure Service Bus service that logs messages to console
-/// In a real scenario, this would publish messages to Azure Service Bus
-/// </summary>
 public class FakeAzureServiceBusService : IMessageBrokerService
 {
     private readonly ILogger<FakeAzureServiceBusService> _logger;
+    private readonly IMongoDbService _mongoDbService;
 
-    /// <summary>
-    /// Initializes a new instance of the FakeAzureServiceBusService
-    /// </summary>
-    /// <param name="logger">The logger instance</param>
-    public FakeAzureServiceBusService(ILogger<FakeAzureServiceBusService> logger)
+    public FakeAzureServiceBusService(ILogger<FakeAzureServiceBusService> logger, IMongoDbService mongoDbService)
     {
         _logger = logger;
+        _mongoDbService = mongoDbService;
     }
 
-    /// <summary>
-    /// Publishes a domain event to Azure Service Bus (fake implementation - logs to console)
-    /// </summary>
-    /// <typeparam name="T">The type of the domain event</typeparam>
-    /// <param name="domainEvent">The domain event to publish</param>
-    /// <param name="topicName">The topic name to publish to</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Task representing the async operation</returns>
     public async Task PublishAsync<T>(T domainEvent, string topicName, CancellationToken cancellationToken = default) where T : INotification
     {
         try
@@ -41,19 +27,31 @@ public class FakeAzureServiceBusService : IMessageBrokerService
                 DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
             });
             
+            // Save message to MongoDB (simulated)
+            var messageDocument = new MessageDocument
+            {
+                MessageId = messageId,
+                EventType = typeof(T).Name,
+                TopicName = topicName,
+                MessageBody = messageBody,
+                Processed = false
+            };
+            
+            var documentId = await _mongoDbService.InsertMessageAsync(messageDocument, cancellationToken);
+            
             _logger.LogInformation(
-                "📨 [Azure Service Bus] Publishing message to topic '{TopicName}' | Message ID: {MessageId} | Event Type: {EventType} | Message Body: {MessageBody}",
+                "📨 [Azure Service Bus] Publishing message to topic '{TopicName}' | Message ID: {MessageId} | Event Type: {EventType} | MongoDB Document ID: {DocumentId}",
                 topicName,
                 messageId,
                 typeof(T).Name,
-                messageBody
+                documentId
             );
 
             // Simulate async operation
             await Task.Delay(10, cancellationToken);
             
             _logger.LogInformation(
-                "✅ [Azure Service Bus] Successfully published message {MessageId} to topic '{TopicName}'",
+                "✅ [Azure Service Bus] Successfully published message {MessageId} to topic '{TopicName}' and saved to MongoDB",
                 messageId,
                 topicName
             );
@@ -69,13 +67,6 @@ public class FakeAzureServiceBusService : IMessageBrokerService
         }
     }
 
-    /// <summary>
-    /// Publishes a domain event to Azure Service Bus with default topic naming
-    /// </summary>
-    /// <typeparam name="T">The type of the domain event</typeparam>
-    /// <param name="domainEvent">The domain event to publish</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Task representing the async operation</returns>
     public async Task PublishAsync<T>(T domainEvent, CancellationToken cancellationToken = default) where T : INotification
     {
         // Generate topic name based on event type

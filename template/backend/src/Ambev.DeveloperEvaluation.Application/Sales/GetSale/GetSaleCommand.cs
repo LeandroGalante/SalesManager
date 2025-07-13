@@ -1,21 +1,11 @@
 using Ambev.DeveloperEvaluation.Common.Validation;
+using Ambev.DeveloperEvaluation.Domain.Common;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.GetSale;
 
-/// <summary>
-/// Command for retrieving a specific sale by ID.
-/// </summary>
-/// <remarks>
-/// This command is used to fetch a sale by its unique identifier.
-/// It implements <see cref="IRequest{TResponse}"/> to initiate the request 
-/// that returns a <see cref="GetSaleResult"/>.
-/// </remarks>
-public class GetSaleCommand : IRequest<GetSaleResult>
+public class GetSaleCommand : ICommand<GetSaleResult>, IRequest<GetSaleResult>
 {
-    /// <summary>
-    /// Gets or sets the unique identifier of the sale to retrieve.
-    /// </summary>
     public Guid Id { get; set; }
 
     /// <summary>

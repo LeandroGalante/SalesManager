@@ -1,6 +1,100 @@
-@Ambev.DeveloperEvaluation.WebApi_HostAddress = http://localhost:5119
+@host = https://localhost:7219
+@token = 
 
-GET {{Ambev.DeveloperEvaluation.WebApi_HostAddress}}/weatherforecast/
-Accept: application/json
+### Health Check
+GET {{host}}/health
 
-###
+### 1. Create User
+POST {{host}}/api/users
+Content-Type: application/json
+
+{
+  "username": "john.doe",
+  "email": "john.doe@example.com",
+  "phone": "+5511999999999",
+  "password": "StrongPass123!",
+  "role": "Admin"
+}
+
+### 2. Authenticate User
+POST {{host}}/api/auth
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "StrongPass123!"
+}
+
+### 3. Create Sale (Protected - Requires Authentication)
+POST {{host}}/api/sales
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "saleNumber": "SALE-001",
+  "saleDate": "2024-01-15T10:00:00Z",
+  "customerId": "customer-123",
+  "customerName": "John Customer",
+  "branchId": "branch-456",
+  "branchName": "Main Branch",
+  "items": [
+    {
+      "productId": "product-789",
+      "productName": "Premium Product",
+      "quantity": 2,
+      "unitPrice": 99.99
+    }
+  ]
+}
+
+### 4. Get All Sales (Protected - Requires Authentication)
+GET {{host}}/api/sales?page=1&size=10
+Authorization: Bearer {{token}}
+
+### 5. Get Specific Sale (Protected - Requires Authentication)
+GET {{host}}/api/sales/{{saleId}}
+Authorization: Bearer {{token}}
+
+### 6. Update Sale (Protected - Requires Authentication)
+PUT {{host}}/api/sales/{{saleId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "customerId": "customer-123",
+  "customerName": "John Customer Updated",
+  "branchId": "branch-456",
+  "branchName": "Main Branch",
+  "items": [
+    {
+      "productId": "product-789",
+      "productName": "Premium Product",
+      "quantity": 3,
+      "unitPrice": 89.99
+    }
+  ]
+}
+
+### 7. Cancel Sale Item (Protected - Requires Authentication)
+POST {{host}}/api/sales/{{saleId}}/items/{{itemId}}/cancel
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "reason": "Customer requested cancellation"
+}
+
+### 8. Delete Sale (Protected - Requires Authentication)
+DELETE {{host}}/api/sales/{{saleId}}
+Authorization: Bearer {{token}}
+
+### 9. Get User by ID (Public)
+GET {{host}}/api/users/{{userId}}
+
+### Notes:
+# 1. Replace {{token}} with the actual JWT token from the auth response
+# 2. Replace {{saleId}} with an actual sale ID
+# 3. Replace {{itemId}} with an actual item ID
+# 4. Replace {{userId}} with an actual user ID
+# 5. All Sales endpoints require authentication (Bearer token)
+# 6. User endpoints are public (no authentication required)

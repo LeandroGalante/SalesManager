@@ -1,48 +1,19 @@
 using Ambev.DeveloperEvaluation.Common.Validation;
+using Ambev.DeveloperEvaluation.Domain.Common;
 using MediatR;
+using FluentValidation;
+using Ambev.DeveloperEvaluation.Application.Sales.GetSale;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.GetSales;
 
-/// <summary>
-/// Command for retrieving a paginated list of sales.
-/// </summary>
-/// <remarks>
-/// This command is used to fetch sales with optional filtering and pagination.
-/// It implements <see cref="IRequest{TResponse}"/> to initiate the request 
-/// that returns a <see cref="GetSalesResult"/>.
-/// </remarks>
-public class GetSalesCommand : IRequest<GetSalesResult>
+public class GetSalesCommand : ICommand<GetSalesResult>, IRequest<GetSalesResult>
 {
-    /// <summary>
-    /// Gets or sets the page number (1-based).
-    /// </summary>
     public int Page { get; set; } = 1;
-
-    /// <summary>
-    /// Gets or sets the page size.
-    /// </summary>
     public int Size { get; set; } = 10;
-
-    /// <summary>
-    /// Gets or sets the customer ID filter (optional).
-    /// </summary>
     public string? CustomerId { get; set; }
-
-    /// <summary>
-    /// Gets or sets the branch ID filter (optional).
-    /// </summary>
     public string? BranchId { get; set; }
-
-    /// <summary>
-    /// Gets or sets the order by field and direction (optional).
-    /// Example: "saleDate desc", "totalAmount asc"
-    /// </summary>
     public string? OrderBy { get; set; }
 
-    /// <summary>
-    /// Validates the command.
-    /// </summary>
-    /// <returns>Validation result with any errors</returns>
     public ValidationResultDetail Validate()
     {
         var validator = new GetSalesCommandValidator();
@@ -52,5 +23,30 @@ public class GetSalesCommand : IRequest<GetSalesResult>
             IsValid = result.IsValid,
             Errors = result.Errors.Select(o => (ValidationErrorDetail)o)
         };
+    }
+}
+
+public class GetSalesResult
+{
+    public List<GetSaleResult> Data { get; set; } = new();
+    public int CurrentPage { get; set; }
+    public int PageSize { get; set; }
+    public int TotalItems { get; set; }
+    public int TotalPages { get; set; }
+    public bool HasNextPage => CurrentPage < TotalPages;
+    public bool HasPreviousPage => CurrentPage > 1;
+}
+
+public class GetSalesCommandValidator : AbstractValidator<GetSalesCommand>
+{
+    public GetSalesCommandValidator()
+    {
+        RuleFor(command => command.Page)
+            .GreaterThan(0)
+            .WithMessage("Page must be greater than 0");
+
+        RuleFor(command => command.Size)
+            .GreaterThan(0)
+            .WithMessage("Size must be greater than 0");
     }
 } 

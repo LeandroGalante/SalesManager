@@ -3,14 +3,8 @@ using Ambev.DeveloperEvaluation.Domain.Entities;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 
-/// <summary>
-/// Profile for mapping between Sale entity and CreateSale operation DTOs
-/// </summary>
 public class CreateSaleProfile : Profile
 {
-    /// <summary>
-    /// Initializes the mappings for CreateSale operation
-    /// </summary>
     public CreateSaleProfile()
     {
         CreateMap<CreateSaleCommand, Sale>()
@@ -33,6 +27,6 @@ public class CreateSaleProfile : Profile
             .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount));
 
         CreateMap<SaleItem, CreateSaleItemResult>()
-            .ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount));
+            .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.TotalAmount));
     }
 } 

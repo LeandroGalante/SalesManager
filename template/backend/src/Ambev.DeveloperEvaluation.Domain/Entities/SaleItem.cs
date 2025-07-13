@@ -5,71 +5,25 @@ using System.Text.Json.Serialization;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities;
 
-/// <summary>
-/// Represents an item within a sale transaction.
-/// This entity contains product information, quantities, pricing, and discount details.
-/// </summary>
 public class SaleItem : BaseEntity
 {
-    /// <summary>
-    /// Gets or sets the ID of the sale this item belongs to.
-    /// </summary>
     public Guid SaleId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the product identifier.
-    /// Using External Identities pattern for referencing products from other domains.
-    /// </summary>
     public string ProductId { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Gets or sets the product name (denormalized for performance).
-    /// </summary>
     public string ProductName { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Gets or sets the quantity of the product in this sale.
-    /// </summary>
     public int Quantity { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the unit price of the product.
-    /// </summary>
     public decimal UnitPrice { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the discount percentage applied to this item (0-100).
-    /// </summary>
     public decimal Discount { get; set; }
-    
-    /// <summary>
-    /// Gets the total amount for this item after applying discount.
-    /// </summary>
     public decimal TotalAmount => (Quantity * UnitPrice) * (1 - Discount / 100);
-    
-    /// <summary>
-    /// Gets or sets whether this item has been cancelled.
-    /// </summary>
     public bool IsCancelled { get; set; }
     
-    /// <summary>
-    /// Navigation property to the sale this item belongs to.
-    /// </summary>
     [JsonIgnore]
     public virtual Sale Sale { get; set; } = null!;
     
-    /// <summary>
-    /// Initializes a new instance of the SaleItem class.
-    /// </summary>
     public SaleItem()
     {
         IsCancelled = false;
     }
     
-    /// <summary>
-    /// Calculates the appropriate discount based on quantity business rules.
-    /// </summary>
-    /// <returns>The discount percentage to apply</returns>
     public decimal CalculateDiscountPercentage()
     {
         if (Quantity < 4)
@@ -84,9 +38,6 @@ public class SaleItem : BaseEntity
         throw new InvalidOperationException("Cannot sell more than 20 identical items");
     }
     
-    /// <summary>
-    /// Applies the discount based on quantity business rules.
-    /// </summary>
     public void ApplyDiscount()
     {
         if (Quantity > 20)
@@ -95,18 +46,11 @@ public class SaleItem : BaseEntity
         Discount = CalculateDiscountPercentage();
     }
     
-    /// <summary>
-    /// Cancels this item.
-    /// </summary>
     public void Cancel()
     {
         IsCancelled = true;
     }
     
-    /// <summary>
-    /// Validates the sale item according to business rules.
-    /// </summary>
-    /// <returns>Validation result with any errors</returns>
     public ValidationResultDetail Validate()
     {
         var errors = new List<ValidationErrorDetail>();

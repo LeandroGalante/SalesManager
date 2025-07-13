@@ -1,4 +1,5 @@
 using MediatR;
+using FluentValidation;
 
 namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
 
@@ -19,4 +20,17 @@ public class AuthenticateUserCommand : IRequest<AuthenticateUserResult>
     /// Will be verified against the stored hashed password.
     /// </summary>
     public string Password { get; set; } = string.Empty;
+}
+
+public class AuthenticateUserValidator : AbstractValidator<AuthenticateUserCommand>
+{
+    public AuthenticateUserValidator()
+    {
+        RuleFor(x => x.Email)
+            .NotEmpty()
+            .EmailAddress();
+
+        RuleFor(x => x.Password)
+            .NotEmpty();
+    }
 }

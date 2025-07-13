@@ -1,24 +1,34 @@
 using MediatR;
+using FluentValidation;
+using Ambev.DeveloperEvaluation.Domain.Common;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CancelItem;
 
-/// <summary>
-/// Command for cancelling a specific item in a sale
-/// </summary>
-public class CancelItemCommand : IRequest<CancelItemResult>
+public class CancelItemCommand : ICommand<CancelItemResult>, IRequest<CancelItemResult>
 {
-    /// <summary>
-    /// Gets or sets the sale ID
-    /// </summary>
     public Guid SaleId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the item ID to cancel
-    /// </summary>
     public Guid ItemId { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the reason for cancellation
-    /// </summary>
     public string? CancellationReason { get; set; }
+}
+
+public class CancelItemResult
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public Guid ItemId { get; set; }
+    public Guid SaleId { get; set; }
+}
+
+public class CancelItemCommandValidator : AbstractValidator<CancelItemCommand>
+{
+    public CancelItemCommandValidator()
+    {
+        RuleFor(x => x.SaleId)
+            .NotEmpty()
+            .WithMessage("Sale ID is required");
+
+        RuleFor(x => x.ItemId)
+            .NotEmpty()
+            .WithMessage("Item ID is required");
+    }
 } 

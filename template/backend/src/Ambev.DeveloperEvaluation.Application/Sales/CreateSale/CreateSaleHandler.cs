@@ -8,21 +8,12 @@ using Ambev.DeveloperEvaluation.Common.MessageBroker;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.CreateSale;
 
-/// <summary>
-/// Handler for processing CreateSaleCommand requests
-/// </summary>
 public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleResult>
 {
     private readonly ISaleRepository _saleRepository;
     private readonly IMapper _mapper;
     private readonly IMessageBrokerService _messageBrokerService;
 
-    /// <summary>
-    /// Initializes a new instance of CreateSaleHandler
-    /// </summary>
-    /// <param name="saleRepository">The sale repository</param>
-    /// <param name="mapper">The AutoMapper instance</param>
-    /// <param name="messageBrokerService">The message broker service for publishing events</param>
     public CreateSaleHandler(ISaleRepository saleRepository, IMapper mapper, IMessageBrokerService messageBrokerService)
     {
         _saleRepository = saleRepository;
@@ -30,12 +21,6 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
         _messageBrokerService = messageBrokerService;
     }
 
-    /// <summary>
-    /// Handles the CreateSaleCommand request
-    /// </summary>
-    /// <param name="command">The CreateSale command</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>The created sale details</returns>
     public async Task<CreateSaleResult> Handle(CreateSaleCommand command, CancellationToken cancellationToken)
     {
         var validator = new CreateSaleCommandValidator();
@@ -44,7 +29,7 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
 
-        // Create the sale entity
+        // Create the sale entity - use AutoMapper for basic properties but handle items manually
         var sale = new Sale
         {
             SaleNumber = command.SaleNumber,
@@ -55,7 +40,7 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
             BranchName = command.BranchName
         };
 
-        // Add items to the sale
+        // Add items to the sale with proper business rules
         foreach (var itemCommand in command.Items)
         {
             var saleItem = new SaleItem
@@ -65,10 +50,10 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
                 Quantity = itemCommand.Quantity,
                 UnitPrice = itemCommand.UnitPrice
             };
-
+            
             // Apply discount based on business rules
             saleItem.ApplyDiscount();
-
+            
             sale.AddItem(saleItem);
         }
 

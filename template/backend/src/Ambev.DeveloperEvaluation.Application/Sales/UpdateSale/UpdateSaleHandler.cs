@@ -48,7 +48,7 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
         if (sale == null)
             throw new InvalidOperationException($"Sale with ID {command.Id} not found");
 
-        // Update sale properties
+        // Update sale properties manually to maintain control
         sale.CustomerId = command.CustomerId;
         sale.CustomerName = command.CustomerName;
         sale.BranchId = command.BranchId;
