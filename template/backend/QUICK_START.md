@@ -21,7 +21,16 @@ This guide will help you get the Sales Manager application up and running quickl
    docker-compose up -d ambev.developerevaluation.database ambev.developerevaluation.nosql
    ```
 
-3. **Verify services are running:**
+3. **Clean database (optional - for fresh testing):**
+   ```bash
+   # Stop and remove volumes (cleans all data)
+   docker-compose down -v
+   
+   # Restart infrastructure
+   docker-compose up -d ambev.developerevaluation.database ambev.developerevaluation.nosql
+   ```
+
+4. **Verify services are running:**
    ```bash
    docker-compose ps
    ```
@@ -30,7 +39,9 @@ This guide will help you get the Sales Manager application up and running quickl
    - PostgreSQL running on port 5432
    - MongoDB running on port 27017
 
-## Step 2: Run the API with Visual Studio
+## Step 2: Run the API
+
+### Option A: Using Visual Studio (Recommended for Development)
 
 1. **Open the solution in Visual Studio:**
    - Open `Ambev.DeveloperEvaluation.sln` in Visual Studio
@@ -44,21 +55,29 @@ This guide will help you get the Sales Manager application up and running quickl
    ```json
    {
      "ConnectionStrings": {
-       "DefaultConnection": "Host=localhost;Port=5432;Database=ambev_evaluation;Username=ambev_user;Password=ambev_pass",
-       "MongoDB": "mongodb://developer:ev@luAt10n@localhost:27017/message_broker?authSource=admin"
+       "DefaultConnection": "Host=localhost;Port=5432;Database=developer_evaluation;Username=developer;Password=ev@luAt10n",
+       "MongoDB": "mongodb://developer:ev%40luAt10n@localhost:27017/message_broker?authSource=admin"
      }
    }
    ```
 
 4. **Run the application:**
    - Press `F5` or click "Start" in Visual Studio
-   - The API will start on `https://localhost:7181` (or the configured port)
+   - The API will start on `https://localhost:7181` (HTTPS) or `http://localhost:5119` (HTTP)
+
+### Option B: Using Docker Compose
+
+1. **Start all services with Docker:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Access the API:**
+   - The API will be available on `https://localhost:5001` (HTTPS) or `http://localhost:5000` (HTTP)
 
 ## Step 3: API Usage with Authentication
 
-### Authentication Flow
-
-All Sales endpoints require authentication. First, create a user and then authenticate to get a JWT token.
+> **Note**: Examples below use Visual Studio ports (`https://localhost:7181`). If using Docker, replace with `https://localhost:5001`.
 
 ### 1. Create a User
 
@@ -75,10 +94,6 @@ curl -k -X POST "https://localhost:7181/api/users" \
   }'
 ```
 
-**Enum Values (use numbers, not strings):**
-- **UserStatus**: `1` = Active, `2` = Inactive, `3` = Suspended
-- **UserRole**: `1` = Customer, `2` = Manager, `3` = Admin
-
 ### 2. Authenticate and Get Token
 
 ```bash
@@ -90,23 +105,9 @@ curl -k -X POST "https://localhost:7181/api/auth" \
   }'
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "message": "User authenticated successfully",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "email": "john.doe@example.com",
-    "name": "john.doe",
-    "role": "Admin"
-  }
-}
-```
+### 3. Sales Operations
 
-### 3. Use Token for Sales Operations
-
-Copy the token from the authentication response and use it in the `Authorization` header:
+Use the token from authentication in the `Authorization` header for all operations below.
 
 #### Create a Sale
 
@@ -116,14 +117,14 @@ curl -k -X POST "https://localhost:7181/api/sales" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
     "saleNumber": "SALE-001",
-    "saleDate": "2024-01-15T10:00:00Z",
-    "customerId": "customer-123",
+    "customerId": "99b88712-b120-40ae-ae51-c6f348da1899",
     "customerName": "John Customer",
-    "branchId": "branch-456",
+    "branchId": "12345678-1234-1234-1234-123456789abc",
     "branchName": "Main Branch",
+    "saleDate": "2024-01-15T10:00:00Z",
     "items": [
       {
-        "productId": "product-789",
+        "productId": "87654321-4321-4321-4321-abcdef123456",
         "productName": "Premium Product",
         "quantity": 2,
         "unitPrice": 99.99
@@ -153,13 +154,13 @@ curl -k -X PUT "https://localhost:7181/api/sales/{sale-id}" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
-    "customerId": "customer-123",
+    "customerId": "99b88712-b120-40ae-ae51-c6f348da1899",
     "customerName": "John Customer Updated",
-    "branchId": "branch-456",
-    "branchName": "Main Branch",
+    "branchId": "12345678-1234-1234-1234-123456789abc",
+    "branchName": "Main Branch Updated",
     "items": [
       {
-        "productId": "product-789",
+        "productId": "87654321-4321-4321-4321-abcdef123456",
         "productName": "Premium Product",
         "quantity": 3,
         "unitPrice": 89.99
@@ -189,85 +190,34 @@ curl -k -X POST "https://localhost:7181/api/sales/{sale-id}/items/{item-id}/canc
 ## Step 4: Explore the API
 
 ### Swagger Documentation
-
-Once the API is running, you can access the interactive API documentation at:
-- **Swagger UI**: `https://localhost:7181/swagger`
+Access the interactive API documentation at: `https://localhost:7181/swagger`
 
 ### Health Check
-
-Verify the API is running:
 ```bash
 curl -k -X GET "https://localhost:7181/health"
 ```
 
 ## Important Notes
 
-### Security
-- All Sales endpoints require authentication
-- JWT tokens expire after 8 hours
-- Use HTTPS in production environments
+- All Sales endpoints require authentication with JWT tokens
+- Use `-k` flag with curl to ignore SSL certificate warnings in development
+- GUIDs are required for: `customerId`, `branchId`, `productId`
+- User Status: `1` = Active, `2` = Inactive, `3` = Suspended
+- User Role: `1` = Customer, `2` = Manager, `3` = Admin
+- Automatic discounts: 10% for 4-9 items, 20% for 10-20 items
 
-### SSL Certificates
-- In development, the API uses self-signed certificates
-- Use `-k` flag with curl to ignore SSL certificate warnings
-- Alternative: Use `http://localhost:7181` instead of `https://localhost:7181` to avoid SSL issues
-- This is safe for local development but should NOT be used in production
+## Quick Commands
 
-### Database
-- PostgreSQL stores application data
-- MongoDB stores message broker events
-- Both databases are automatically created when the application starts
-
-### Troubleshooting
-
-**Docker Issues:**
 ```bash
+# Start infrastructure for Visual Studio
+docker-compose up -d ambev.developerevaluation.database ambev.developerevaluation.nosql
+
+# Start full stack for Docker
+docker-compose up -d
+
 # Stop all services
 docker-compose down
 
-# Remove volumes and start fresh
+# Clean environment
 docker-compose down -v
-docker-compose up -d ambev.developerevaluation.database ambev.developerevaluation.nosql
-```
-
-**Connection Issues:**
-- Ensure Docker containers are running
-- Check if ports 5432 and 27017 are available
-- Verify connection strings in `appsettings.json`
-
-**API Request Issues:**
-- Use enum **numbers** (not strings) for `status` and `role` fields
-- Include both `status` and `role` fields when creating users
-- For SSL certificate errors, use `-k` flag with curl
-
-## Architecture Overview
-
-- **API Layer**: ASP.NET Core Web API
-- **Application Layer**: Business logic and CQRS handlers
-- **Domain Layer**: Entities and domain rules
-- **Infrastructure Layer**: Data access and external services
-- **Database**: PostgreSQL for relational data
-- **Message Broker**: MongoDB for event storage
-
-## Enum Reference
-
-### UserStatus Values
-- `0` = Unknown (not allowed)
-- `1` = Active
-- `2` = Inactive  
-- `3` = Suspended
-
-### UserRole Values
-- `0` = None (not allowed)
-- `1` = Customer
-- `2` = Manager
-- `3` = Admin
-
-## Next Steps
-
-1. Explore the Swagger documentation
-2. Test all endpoints with different data
-3. Check the MongoDB collections for stored events
-4. Review the application logs for detailed information
-
-For more detailed information, refer to the individual project documentation files. 
+``` 

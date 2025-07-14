@@ -6,12 +6,30 @@ public class CreateSaleRequestValidator : AbstractValidator<CreateSaleRequest>
 {
     public CreateSaleRequestValidator()
     {
-        RuleFor(x => x.CustomerId)
-            .NotEmpty();
-
-        RuleFor(x => x.Branch)
+        RuleFor(x => x.SaleNumber)
             .NotEmpty()
             .MaximumLength(50);
+
+        RuleFor(x => x.CustomerId)
+            .NotEmpty()
+            .MaximumLength(50);
+
+        RuleFor(x => x.CustomerName)
+            .NotEmpty()
+            .MaximumLength(100);
+
+        RuleFor(x => x.BranchId)
+            .NotEmpty()
+            .MaximumLength(50);
+
+        RuleFor(x => x.BranchName)
+            .NotEmpty()
+            .MaximumLength(100);
+
+        RuleFor(x => x.SaleDate)
+            .NotEmpty()
+            .Must(date => date != default(DateTime))
+            .WithMessage("Sale date must be valid");
 
         RuleFor(x => x.Items)
             .NotEmpty()
@@ -26,6 +44,10 @@ public class CreateSaleItemRequestValidator : AbstractValidator<CreateSaleItemRe
 {
     public CreateSaleItemRequestValidator()
     {
+        RuleFor(x => x.ProductId)
+            .NotEmpty()
+            .MaximumLength(50);
+
         RuleFor(x => x.ProductName)
             .NotEmpty()
             .MaximumLength(100);
