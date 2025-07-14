@@ -13,7 +13,8 @@ Content-Type: application/json
   "email": "john.doe@example.com",
   "phone": "+5511999999999",
   "password": "StrongPass123!",
-  "role": "Admin"
+  "status": 1,
+  "role": 3
 }
 
 ### 2. Authenticate User
@@ -98,3 +99,4 @@ GET {{host}}/api/users/{{userId}}
 # 4. Replace {{userId}} with an actual user ID
 # 5. All Sales endpoints require authentication (Bearer token)
 # 6. User endpoints are public (no authentication required)
+# 7. Enum values: status (1=Active, 2=Inactive, 3=Suspended), role (1=Customer, 2=Manager, 3=Admin)

@@ -70,9 +70,14 @@ curl -k -X POST "https://localhost:7181/api/users" \
     "email": "john.doe@example.com",
     "phone": "+5511999999999",
     "password": "StrongPass123!",
-    "role": "Admin"
+    "status": 1,
+    "role": 3
   }'
 ```
+
+**Enum Values (use numbers, not strings):**
+- **UserStatus**: `1` = Active, `2` = Inactive, `3` = Suspended
+- **UserRole**: `1` = Customer, `2` = Manager, `3` = Admin
 
 ### 2. Authenticate and Get Token
 
@@ -230,6 +235,11 @@ docker-compose up -d ambev.developerevaluation.database ambev.developerevaluatio
 - Check if ports 5432 and 27017 are available
 - Verify connection strings in `appsettings.json`
 
+**API Request Issues:**
+- Use enum **numbers** (not strings) for `status` and `role` fields
+- Include both `status` and `role` fields when creating users
+- For SSL certificate errors, use `-k` flag with curl
+
 ## Architecture Overview
 
 - **API Layer**: ASP.NET Core Web API
@@ -238,6 +248,20 @@ docker-compose up -d ambev.developerevaluation.database ambev.developerevaluatio
 - **Infrastructure Layer**: Data access and external services
 - **Database**: PostgreSQL for relational data
 - **Message Broker**: MongoDB for event storage
+
+## Enum Reference
+
+### UserStatus Values
+- `0` = Unknown (not allowed)
+- `1` = Active
+- `2` = Inactive  
+- `3` = Suspended
+
+### UserRole Values
+- `0` = None (not allowed)
+- `1` = Customer
+- `2` = Manager
+- `3` = Admin
 
 ## Next Steps
 
