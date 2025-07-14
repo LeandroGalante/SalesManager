@@ -72,7 +72,17 @@ This guide will help you get the Sales Manager application up and running quickl
    docker-compose up -d
    ```
 
-2. **Access the API:**
+2. **Verify all services are running:**
+   ```bash
+   docker-compose ps
+   ```
+
+3. **Check API logs (if needed):**
+   ```bash
+   docker-compose logs -f ambev.developerevaluation.webapi
+   ```
+
+4. **Access the API:**
    - The API will be available on `https://localhost:5001` (HTTPS) or `http://localhost:5000` (HTTP)
 
 ## Step 3: API Usage with Authentication
@@ -143,14 +153,14 @@ curl -k -X GET "https://localhost:7181/api/sales" \
 #### Get a Specific Sale
 
 ```bash
-curl -k -X GET "https://localhost:7181/api/sales/{sale-id}" \
+curl -k -X GET "https://localhost:7181/api/sales/SALE_ID_HERE" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
 #### Update a Sale
 
 ```bash
-curl -k -X PUT "https://localhost:7181/api/sales/{sale-id}" \
+curl -k -X PUT "https://localhost:7181/api/sales/SALE_ID_HERE" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
@@ -172,14 +182,14 @@ curl -k -X PUT "https://localhost:7181/api/sales/{sale-id}" \
 #### Delete a Sale
 
 ```bash
-curl -k -X DELETE "https://localhost:7181/api/sales/{sale-id}" \
+curl -k -X DELETE "https://localhost:7181/api/sales/SALE_ID_HERE" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
 #### Cancel a Sale Item
 
 ```bash
-curl -k -X POST "https://localhost:7181/api/sales/{sale-id}/items/{item-id}/cancel" \
+curl -k -X POST "https://localhost:7181/api/sales/SALE_ID_HERE/items/ITEM_ID_HERE/cancel" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
@@ -212,8 +222,11 @@ curl -k -X GET "https://localhost:7181/health"
 # Start infrastructure for Visual Studio
 docker-compose up -d ambev.developerevaluation.database ambev.developerevaluation.nosql
 
-# Start full stack for Docker
+# Start full stack (all services including API)
 docker-compose up -d
+
+# Check services status
+docker-compose ps
 
 # Stop all services
 docker-compose down
