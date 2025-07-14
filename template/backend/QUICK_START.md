@@ -52,7 +52,7 @@ This guide will help you get the Sales Manager application up and running quickl
 
 4. **Run the application:**
    - Press `F5` or click "Start" in Visual Studio
-   - The API will start on `https://localhost:7219` (or the configured port)
+   - The API will start on `https://localhost:7181` (or the configured port)
 
 ## Step 3: API Usage with Authentication
 
@@ -63,7 +63,7 @@ All Sales endpoints require authentication. First, create a user and then authen
 ### 1. Create a User
 
 ```bash
-curl -X POST "https://localhost:7219/api/users" \
+curl -k -X POST "https://localhost:7181/api/users" \
   -H "Content-Type: application/json" \
   -d '{
     "username": "john.doe",
@@ -77,7 +77,7 @@ curl -X POST "https://localhost:7219/api/users" \
 ### 2. Authenticate and Get Token
 
 ```bash
-curl -X POST "https://localhost:7219/api/auth" \
+curl -k -X POST "https://localhost:7181/api/auth" \
   -H "Content-Type: application/json" \
   -d '{
     "email": "john.doe@example.com",
@@ -106,7 +106,7 @@ Copy the token from the authentication response and use it in the `Authorization
 #### Create a Sale
 
 ```bash
-curl -X POST "https://localhost:7219/api/sales" \
+curl -k -X POST "https://localhost:7181/api/sales" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
@@ -130,21 +130,21 @@ curl -X POST "https://localhost:7219/api/sales" \
 #### Get All Sales
 
 ```bash
-curl -X GET "https://localhost:7219/api/sales" \
+curl -k -X GET "https://localhost:7181/api/sales" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
 #### Get a Specific Sale
 
 ```bash
-curl -X GET "https://localhost:7219/api/sales/{sale-id}" \
+curl -k -X GET "https://localhost:7181/api/sales/{sale-id}" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
 #### Update a Sale
 
 ```bash
-curl -X PUT "https://localhost:7219/api/sales/{sale-id}" \
+curl -k -X PUT "https://localhost:7181/api/sales/{sale-id}" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
@@ -166,14 +166,14 @@ curl -X PUT "https://localhost:7219/api/sales/{sale-id}" \
 #### Delete a Sale
 
 ```bash
-curl -X DELETE "https://localhost:7219/api/sales/{sale-id}" \
+curl -k -X DELETE "https://localhost:7181/api/sales/{sale-id}" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
 #### Cancel a Sale Item
 
 ```bash
-curl -X POST "https://localhost:7219/api/sales/{sale-id}/items/{item-id}/cancel" \
+curl -k -X POST "https://localhost:7181/api/sales/{sale-id}/items/{item-id}/cancel" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE" \
   -d '{
@@ -186,13 +186,13 @@ curl -X POST "https://localhost:7219/api/sales/{sale-id}/items/{item-id}/cancel"
 ### Swagger Documentation
 
 Once the API is running, you can access the interactive API documentation at:
-- **Swagger UI**: `https://localhost:7219/swagger`
+- **Swagger UI**: `https://localhost:7181/swagger`
 
 ### Health Check
 
 Verify the API is running:
 ```bash
-curl -X GET "https://localhost:7219/health"
+curl -k -X GET "https://localhost:7181/health"
 ```
 
 ## Important Notes
@@ -201,6 +201,12 @@ curl -X GET "https://localhost:7219/health"
 - All Sales endpoints require authentication
 - JWT tokens expire after 8 hours
 - Use HTTPS in production environments
+
+### SSL Certificates
+- In development, the API uses self-signed certificates
+- Use `-k` flag with curl to ignore SSL certificate warnings
+- Alternative: Use `http://localhost:7181` instead of `https://localhost:7181` to avoid SSL issues
+- This is safe for local development but should NOT be used in production
 
 ### Database
 - PostgreSQL stores application data
