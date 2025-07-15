@@ -1,5 +1,13 @@
 # Developer Evaluation Project
 
+## 🚀 Quick Start
+
+**Want to run the Sales API immediately?** 
+
+👉 **[Quick Start Guide](./template/backend/QUICK_START.md)** - Get up and running in minutes!
+
+---
+
 `READ CAREFULLY`
 
 ## Instructions
@@ -83,4 +91,4 @@ This section includes links to the detailed documentation for the different API 
 ## Project Structure
 This section describes the overall structure and organization of the project files and directories. 
 
-See [Project Structure](/.doc/project-structure.md)# SalesManager
+See [Project Structure](/.doc/project-structure.md)
